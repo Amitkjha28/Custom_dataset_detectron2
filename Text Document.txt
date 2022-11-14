@@ -1,0 +1,3 @@
+ python labelme2coco.py train --output train.json
+
+ python labelme2coco.py test --output test.json
