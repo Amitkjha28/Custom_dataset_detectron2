@@ -38,3 +38,33 @@ def get_train_cfg(config_file_path,checkpoint_url,train_dataset_name,test_datase
     cfg.OUTPUT_DIR = output_dir
 
     return cfg
+
+def on_image(image_path, predictor):
+    im = cv2.imread(image_path)
+    outputs = predictor(im)
+    v = Visualizer(im[:, :, ::-1], metadata={}, scale=0.5, instance_mode=ColorMode.SEGMENTATION)
+    v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+
+    plt.figure(figsize=(14, 10))
+    plt.imshow(v.get_image())
+    plt.show()
+
+
+def on_video(videoPath, predictor):
+    cap = cv2.VideoCapture(videoPath)
+    if (cap.isOpened() == False):
+        print("ERROR Opening File................")
+        return
+
+    (ret, image) = cap.read()
+    while ret:
+        predictions = predictor(image)
+        v = Visualizer(image[:, :, ::-1], metadata={},scale=0.5,instance_mode=ColorMode.SEGMENTATION)
+        output = v.draw_instance_predictions(predictions["instances"].to("cpu"))
+
+        cv2.imshow("Result", output.get_image()[:, :, ::-1])
+
+        key = cv2.waitkey(1) & 0xFF
+        if key == ord("q"):
+            break
+        #(success, image) = cap.read()
